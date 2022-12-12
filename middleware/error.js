@@ -3,6 +3,7 @@ const ErrorHandler = require("../utils/errorhandler");
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Server Error";
+  // console.log(err)
 
   //MongoDB Invalid ID Error
   if (err.name === "CastError") {
@@ -22,7 +23,7 @@ module.exports = (err, req, res, next) => {
   //Expire JWT Token
   if (err.name === "TokenExpiredError") {
     const message = "JSON Web Token has Expired,Try again!";
-    err = new ErrorHandler(message, 400);
+    err = new ErrorHandler(message, 400); 
   }
   res.status(err.statusCode).json({
     success: false,

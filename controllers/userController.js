@@ -110,3 +110,101 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   await user.save();
   sendToken(user, 200, res);
 });
+
+//Get User Details
+
+exports.getUserDetail = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+//Update User Password
+
+exports.updatePassword = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select("+password");
+  const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
+  if (!isPasswordMatched) {
+    return next(new ErrorHandler("Old password is incorrect", 400));
+  }
+  if (req.body.newPassword !== req.body.confirmPassword) {
+    return next(new ErrorHandler("Password doesn't match", 400));
+  }
+  user.password = req.body.newPassword;
+  await user.save();
+  sendToken(user, 200, res);
+});
+
+//Update User Profile
+
+exports.updateProfile = catchAsyncError(async (req, res, next) => {
+  const newUserData = {
+    name: req.body.name,
+    email: req.body.email,
+  };
+
+  const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+  res.status(200).json({
+    success: true,
+  });
+});
+
+//Get all Users
+exports.getAllUser = catchAsyncError(async (req, res, next) => {
+  const user = await User.find();
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+//Get single user
+exports.getSingleUser = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return next(new ErrorHandler("Please enter a valid Id", 401));
+  }
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+//Update User Role
+
+exports.updateRole = catchAsyncError(async (req, res, next) => {
+  const newUserData = {
+    name: req.body.name,
+    email: req.body.email,
+    role: req.body.role,
+  };
+
+  const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+    new: true,
+    runValidators: false,
+    useFindAndModify: false,
+  });
+  res.status(200).json({
+    success: true,
+  });
+});
+
+//Delete User Profile
+
+exports.deleteUser = catchAsyncError(async (req, res, next) => {
+  console.log(req.params.id)
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return next(new ErrorHandler("User doesn't exist!", 400));
+  }
+  await user.remove();
+  res.status(200).json({
+    success: true,
+  });
+});
