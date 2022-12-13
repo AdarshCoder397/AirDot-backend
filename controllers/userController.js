@@ -198,7 +198,7 @@ exports.updateRole = catchAsyncError(async (req, res, next) => {
 //Delete User Profile
 
 exports.deleteUser = catchAsyncError(async (req, res, next) => {
-  console.log(req.params.id)
+  console.log(req.params.id);
   const user = await User.findById(req.params.id);
   if (!user) {
     return next(new ErrorHandler("User doesn't exist!", 400));
@@ -206,5 +206,7 @@ exports.deleteUser = catchAsyncError(async (req, res, next) => {
   await user.remove();
   res.status(200).json({
     success: true,
+    message: "User Deleted!",
   });
 });
+
